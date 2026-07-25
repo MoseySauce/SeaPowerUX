@@ -1,0 +1,96 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <AssemblyName>SeaPowerUX.FlightDeck</AssemblyName>
+    <Version>0.5.0</Version>
+    <AssemblyVersion>0.5.0.0</AssemblyVersion>
+    <FileVersion>0.5.0.0</FileVersion>
+    <RootNamespace>SeaPowerUX.FlightDeck</RootNamespace>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+
+    <!--
+      Path to the Sea Power install directory. Override on the command line, e.g.:
+        dotnet build -p:GameDir="C:\Program Files (x86)\Steam\steamapps\common\Sea Power"
+      or set it permanently via the SEA_POWER_GAME_DIR environment variable.
+    -->
+    <GameDir Condition="'$(GameDir)' == '' AND '$(SEA_POWER_GAME_DIR)' != ''">$(SEA_POWER_GAME_DIR)</GameDir>
+    <GameDir Condition="'$(GameDir)' == ''">C:\Program Files (x86)\Steam\steamapps\common\Sea Power</GameDir>
+
+    <ManagedDir>$(GameDir)\Sea Power_Data\Managed</ManagedDir>
+    <BepInExCoreDir>$(GameDir)\BepInEx\core</BepInExCoreDir>
+    <!-- SeaPowerUX.Core must be built (and deployed via its own CopyToPluginsDir target) at
+         least once before this HintPath resolves — see SeaPowerUX.Core.csproj. -->
+    <CoreDir>$(GameDir)\BepInEx\plugins\SeaPowerUX.Core</CoreDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="SeaPowerUX.Core">
+      <HintPath>$(CoreDir)\SeaPowerUX.Core.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+
+    <Reference Include="UniRx">
+      <HintPath>$(ManagedDir)\UniRx.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Seapower-Scripts">
+      <HintPath>$(ManagedDir)\Seapower-Scripts.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Noesis.NoesisGUI">
+      <HintPath>$(ManagedDir)\Noesis.NoesisGUI.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>$(ManagedDir)\UnityEngine.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(ManagedDir)\UnityEngine.CoreModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>$(ManagedDir)\UnityEngine.UI.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UIModule">
+      <HintPath>$(ManagedDir)\UnityEngine.UIModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.TextRenderingModule">
+      <HintPath>$(ManagedDir)\UnityEngine.TextRenderingModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.IMGUIModule">
+      <HintPath>$(ManagedDir)\UnityEngine.IMGUIModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.InputLegacyModule">
+      <HintPath>$(ManagedDir)\UnityEngine.InputLegacyModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.PhysicsModule">
+      <HintPath>$(ManagedDir)\UnityEngine.PhysicsModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+
+    <Reference Include="BepInEx">
+      <HintPath>$(BepInExCoreDir)\BepInEx.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="0Harmony">
+      <HintPath>$(BepInExCoreDir)\0Harmony.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+
+  <!-- Auto-deploy the built plugin into the game's BepInEx/plugins folder for quick iteration. -->
+  <Target Name="CopyToPluginsDir" AfterTargets="Build" Condition="Exists('$(GameDir)')">
+    <MakeDir Directories="$(GameDir)\BepInEx\plugins\SeaPowerUX.FlightDeck" />
+    <Copy SourceFiles="$(TargetDir)$(AssemblyName).dll" DestinationFolder="$(GameDir)\BepInEx\plugins\SeaPowerUX.FlightDeck\" />
+  </Target>
+
+</Project>

@@ -1,0 +1,86 @@
+name: Release
+
+# Builds the pack and produces SeaPowerUX-v<version>.zip. Runs on a version tag (attaches the zip
+# to a GitHub Release) or on manual dispatch (uploads it as a build artifact).
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write   # needed to create/attach a Release on tag builds
+
+env:
+  # Pinned versions of the reference-binary snapshots staged in MoseySauce/private-store.
+  # Bumping these is a deliberate step (see private-store's README): confirm the mod still builds
+  # and its startup compatibility probes still pass against the new game/BepInEx build first.
+  SEA_POWER_REF_VERSION: 0.8.2
+  BEPINEX_REF_VERSION: 5.4.23.5
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      # The plugins compile against the game's managed assemblies (Seapower-Scripts.dll, Noesis,
+      # Unity) and BepInEx core. Those are copyrighted and are NOT in this repo, so a public runner
+      # can't fetch them on its own. They're staged instead in the private MoseySauce/private-store
+      # repo, versioned independently per component:
+      #     sea-power/<SEA_POWER_REF_VERSION>/Sea Power_Data/Managed/*.dll
+      #     bepinex/<BEPINEX_REF_VERSION>/BepInEx/core/*.dll
+      # A fine-grained PAT with read-only Contents access to just that repo is stored as the
+      # PRIVATE_STORE_TOKEN secret here. Nothing fetched below is published — the DLLs are only
+      # ever used to compile (every csproj reference has <Private>False</Private>).
+      - name: Checkout private-store (reference binaries)
+        uses: actions/checkout@v4
+        with:
+          repository: MoseySauce/private-store
+          token: ${{ secrets.PRIVATE_STORE_TOKEN }}
+          path: private-store
+
+      - name: Assemble build references
+        run: |
+          set -euo pipefail
+          SP_DIR="private-store/sea-power/$SEA_POWER_REF_VERSION"
+          BEP_DIR="private-store/bepinex/$BEPINEX_REF_VERSION"
+
+          test -d "$SP_DIR" \
+            || { echo "::error::private-store has no sea-power/$SEA_POWER_REF_VERSION — check SEA_POWER_REF_VERSION or that it was staged/pushed."; exit 1; }
+          test -d "$BEP_DIR" \
+            || { echo "::error::private-store has no bepinex/$BEPINEX_REF_VERSION — check BEPINEX_REF_VERSION or that it was staged/pushed."; exit 1; }
+
+          mkdir -p ci-refs
+          cp -r "$SP_DIR/Sea Power_Data" ci-refs/
+          cp -r "$BEP_DIR/BepInEx" ci-refs/
+
+          test -f "ci-refs/Sea Power_Data/Managed/Seapower-Scripts.dll" \
+            || { echo "::error::Reference tree is missing 'Sea Power_Data/Managed/Seapower-Scripts.dll'."; exit 1; }
+          test -f "ci-refs/BepInEx/core/BepInEx.dll" \
+            || { echo "::error::Reference tree is missing 'BepInEx/core/BepInEx.dll'."; exit 1; }
+
+      - name: Build and package
+        env:
+          SEA_POWER_GAME_DIR: ${{ github.workspace }}/ci-refs
+        run: |
+          chmod +x scripts/package-release.sh
+          scripts/package-release.sh
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SeaPowerUX-zip
+          path: dist/SeaPowerUX-v*.zip
+          if-no-files-found: error
+
+      - name: Attach to release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/SeaPowerUX-v*.zip
+          generate_release_notes: true
