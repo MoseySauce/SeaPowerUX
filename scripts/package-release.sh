@@ -28,10 +28,16 @@ CORE="SeaPowerUX.Core"
 PLUGINS=(SeaPowerUX.TacticalPiP SeaPowerUX.WindowMemory SeaPowerUX.FlightDeck SeaPowerUX.FormationManager)
 OUT="dist"
 
-# --- version, from manifest.json -----------------------------------------------------------------
-VERSION="$(sed -n 's/.*"version_number"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' manifest.json | head -1)"
+# --- version --------------------------------------------------------------------------------------
+# RELEASE_VERSION (set by the CI workflow, computed from MAJOR.MINOR in release.yml plus an
+# auto-incrementing build number) wins when present. Falls back to manifest.json's version_number
+# for local/manual builds.
+VERSION="${RELEASE_VERSION:-}"
 if [ -z "$VERSION" ]; then
-  echo "ERROR: could not read version_number from manifest.json" >&2
+  VERSION="$(sed -n 's/.*"version_number"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' manifest.json | head -1)"
+fi
+if [ -z "$VERSION" ]; then
+  echo "ERROR: could not determine version — set RELEASE_VERSION or version_number in manifest.json" >&2
   exit 1
 fi
 
@@ -87,6 +93,13 @@ cp scripts/install.bat scripts/install.ps1 scripts/install.sh "$STAGE/"
 for f in manifest.json icon.png README.md INSTALL.md CHANGELOG.md LICENSE; do
   [ -f "$f" ] && cp "$f" "$STAGE/"
 done
+
+# Stamp the computed version into the packaged manifest.json copy only — the source-controlled
+# file keeps whatever placeholder is committed, since CI-computed build numbers shouldn't require
+# a commit back to main on every release.
+if [ -f "$STAGE/manifest.json" ]; then
+  sed -i 's/"version_number"[[:space:]]*:[[:space:]]*"[^"]*"/"version_number": "'"$VERSION"'"/' "$STAGE/manifest.json"
+fi
 
 # --- zip -----------------------------------------------------------------------------------------
 # Contents are archived flat (files at the zip root). Prefer `zip` (present on the CI runner); fall

@@ -1,16 +1,25 @@
 name: Release
 
-# Builds the pack and produces SeaPowerUX-v<version>.zip. Runs on a version tag (attaches the zip
-# to a GitHub Release) or on manual dispatch (uploads it as a build artifact).
+# Builds the pack, computes its version, and cuts a real GitHub Release in one shot. Manual
+# dispatch only — there's no tag-push trigger, because the tag itself is one of this workflow's
+# outputs now, not an input to it.
+#
+# Versioning: MAJOR/MINOR below are hand-edited (bump them in a PR like any other change). BUILD
+# is `github.run_number` — a counter GitHub maintains per-workflow, auto-incrementing on every
+# dispatch. The three together (e.g. 1.0.3) become both the release version and the git tag
+# (v1.0.3), created fresh by this workflow — never pushed by hand. That sidesteps GitHub's
+# immutable-release rule, which permanently retires a tag name the instant a release published
+# under it goes live; hand-crafting tags invites exactly that collision if a release is ever
+# redone.
 on:
-  push:
-    tags: ['v*']
   workflow_dispatch:
 
 permissions:
-  contents: write   # needed to create/attach a Release on tag builds
+  contents: write   # needed to create the Release + tag
 
 env:
+  MAJOR: 1
+  MINOR: 0
   # Pinned versions of the reference-binary snapshots staged in MoseySauce/private-store.
   # Bumping these is a deliberate step (see private-store's README): confirm the mod still builds
   # and its startup compatibility probes still pass against the new game/BepInEx build first.
@@ -22,6 +31,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Compute release version
+        id: version
+        run: |
+          VERSION="$MAJOR.$MINOR.${{ github.run_number }}"
+          echo "==> Building release $VERSION (tag v$VERSION)"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Set up .NET
         uses: actions/setup-dotnet@v4
@@ -67,6 +84,7 @@ jobs:
       - name: Build and package
         env:
           SEA_POWER_GAME_DIR: ${{ github.workspace }}/ci-refs
+          RELEASE_VERSION: ${{ steps.version.outputs.version }}
         run: |
           chmod +x scripts/package-release.sh
           scripts/package-release.sh
@@ -78,9 +96,15 @@ jobs:
           path: dist/SeaPowerUX-v*.zip
           if-no-files-found: error
 
-      - name: Attach to release
-        if: startsWith(github.ref, 'refs/tags/')
+      # Authenticated with a repo-scoped PAT (RELEASE_TOKEN), not the default GITHUB_TOKEN: the
+      # tag-protection ruleset on v* only exempts the Admin role for an actual GitHub user, and
+      # the bot identity behind GITHUB_TOKEN doesn't hold it. Using an admin's own PAT here means
+      # the tag/release this step creates satisfies that bypass regardless of who dispatched the
+      # workflow.
+      - name: Create release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ steps.version.outputs.tag }}
           files: dist/SeaPowerUX-v*.zip
           generate_release_notes: true
+          token: ${{ secrets.RELEASE_TOKEN }}
