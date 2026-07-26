@@ -17,7 +17,7 @@
 # Building needs the game's reference assemblies (Seapower-Scripts.dll, Noesis, Unity, BepInEx core)
 # to compile against, exactly like scripts/deploy-local.sh. Point at a real install with
 # SEA_POWER_GAME_DIR, or let it auto-detect the usual Steam locations. On CI, SEA_POWER_GAME_DIR
-# points at a maintainer-provided reference tree — see .github/workflows/release.yml.
+# points at a maintainer-provided reference tree — see .github/workflows/build.yml.
 #
 # Output goes to dist/ (git-ignored).
 set -euo pipefail
