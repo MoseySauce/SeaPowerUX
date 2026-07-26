@@ -3,6 +3,8 @@
 A [BepInEx](https://github.com/BepInEx/BepInEx) mod pack for **Sea Power** that adds new UI and
 improves the UI the game already has.
 
+**[Screenshots and feature overview →](https://moseysauce.github.io/SeaPowerUX/)**
+
 It is a small shared library plus independent plugins rather than one monolithic mod. Quality-of-life
 behaviour that isn't tied to a single feature — remembering where you put windows, hiding with the
 HUD, docking, window chrome — lives in one place and applies everywhere, including to windows the
