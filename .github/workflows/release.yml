@@ -47,6 +47,20 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path: dist
 
+      - name: Verify tag matches artifact version
+        run: |
+          set -euo pipefail
+          ZIP="$(ls dist/SeaPowerUX-v*.zip 2>/dev/null || true)"
+          if [ -z "$ZIP" ]; then
+            echo "::error::No SeaPowerUX-v*.zip in the downloaded artifact."
+            exit 1
+          fi
+          ZIP_VERSION="v$(basename "$ZIP" .zip | sed 's/^SeaPowerUX-v//')"
+          if [ "${{ github.ref_name }}" != "$ZIP_VERSION" ]; then
+            echo "::error::Tag ${{ github.ref_name }} doesn't match the built artifact ($ZIP_VERSION). Bump manifest.json, merge, then tag the new build."
+            exit 1
+          fi
+
       - name: Create release
         uses: softprops/action-gh-release@v2
         with:
