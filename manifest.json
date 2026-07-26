@@ -1,6 +1,6 @@
 {
   "name": "SeaPowerUX",
-  "version_number": "0.5.0",
+  "version_number": "1.0.0",
   "website_url": "https://github.com/MoseySauce/SeaPowerUX",
   "description": "UI overhaul pack for Sea Power: picture-in-picture, a unified flight deck manager, and window position memory.",
   "dependencies": [

@@ -3,7 +3,7 @@
 All notable changes to SeaPowerUX. Versions follow the pack as a whole; individual
 plugins carry their own version numbers in their BepInEx metadata.
 
-## 0.5.0 — 2026-07-25
+## 1.0.0 — 2026-07-25
 
 First release of the pack. Earlier versions shipped only the picture-in-picture plugin.
 
