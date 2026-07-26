@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SeaPowerUX — UI overhaul pack for Sea Power</title>
+<meta name="description" content="Screenshots and feature overview for SeaPowerUX, a BepInEx mod pack for Sea Power adding a flight deck manager, picture-in-picture, and window memory.">
+<style>
+  :root {
+    --bg: #17191c;
+    --bg-raised: #1e2125;
+    --border: #2c3036;
+    --text: #d8dbde;
+    --text-dim: #9aa0a8;
+    --blue: #3ba7f0;
+    --green: #7ac943;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+  }
+  a { color: var(--blue); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 2.5rem 1.5rem 1.5rem;
+    max-width: 960px;
+    margin: 0 auto;
+  }
+  header img { width: 64px; height: 64px; border-radius: 10px; border: 1px solid var(--border); flex-shrink: 0; }
+  header h1 { margin: 0; font-size: 1.8rem; }
+  header p { margin: 0.25rem 0 0; color: var(--text-dim); }
+
+  nav {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 1.5rem 1.5rem;
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--border);
+  }
+
+  main { max-width: 960px; margin: 0 auto; padding: 0 1.5rem; }
+  section { padding: 2.5rem 0; border-bottom: 1px solid var(--border); }
+  section:last-of-type { border-bottom: none; }
+  h2 { font-size: 1.3rem; margin-top: 0; }
+  h2 .accent { color: var(--green); }
+
+  .gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.25rem;
+  }
+  figure { margin: 0; }
+  .shot {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+    background: var(--bg-raised);
+  }
+  .shot img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .shot .placeholder {
+    display: none;
+    position: absolute;
+    inset: 0;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    border: 1px dashed var(--border);
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    text-align: center;
+    padding: 1rem;
+  }
+  .shot.shot--missing .placeholder { display: flex; }
+  .placeholder code {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.1rem 0.4rem;
+    font-size: 0.78rem;
+  }
+  figcaption { margin-top: 0.6rem; color: var(--text-dim); font-size: 0.92rem; }
+  figcaption strong { color: var(--text); }
+
+  .features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+  }
+  .features h3 { margin: 0 0 0.4rem; font-size: 1.05rem; }
+  .features p { margin: 0; color: var(--text-dim); font-size: 0.95rem; }
+
+  .cta {
+    display: inline-block;
+    margin-top: 0.5rem;
+    padding: 0.6rem 1.1rem;
+    border-radius: 6px;
+    border: 1px solid var(--blue);
+    color: var(--blue);
+  }
+  .cta:hover { background: rgba(59, 167, 240, 0.1); text-decoration: none; }
+
+  footer {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 3rem;
+    color: var(--text-dim);
+    font-size: 0.9rem;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <img src="icon.png" alt="SeaPowerUX icon">
+  <div>
+    <h1>SeaPowerUX</h1>
+    <p>A BepInEx mod pack for Sea Power that adds new UI and improves the UI the game already has.</p>
+  </div>
+</header>
+
+<nav>
+  <a href="#screenshots">Screenshots</a>
+  <a href="#features">Features</a>
+  <a href="#install">Installing</a>
+  <a href="https://github.com/MoseySauce/SeaPowerUX">GitHub</a>
+</nav>
+
+<main>
+  <section id="screenshots">
+    <h2>Screen<span class="accent">shots</span></h2>
+    <div class="gallery">
+
+      <figure>
+        <div class="shot shot--missing">
+          <img src="screenshots/air-boss.png" alt="Air Boss flight deck manager"
+               onerror="this.style.display='none'; this.closest('.shot').classList.add('shot--missing')">
+          <div class="placeholder">Screenshot coming soon<br><code>screenshots/air-boss.png</code></div>
+        </div>
+        <figcaption><strong>Air Boss</strong> — every carrier and air base with a flight deck, live operations state at a glance.</figcaption>
+      </figure>
+
+      <figure>
+        <div class="shot shot--missing">
+          <img src="screenshots/pip.png" alt="Picture-in-picture window over the tactical map"
+               onerror="this.style.display='none'; this.closest('.shot').classList.add('shot--missing')">
+          <div class="placeholder">Screenshot coming soon<br><code>screenshots/pip.png</code></div>
+        </div>
+        <figcaption><strong>Picture-in-picture</strong> — the 3D view mirrored over the fullscreen map, croppable to any aspect.</figcaption>
+      </figure>
+
+      <figure>
+        <div class="shot shot--missing">
+          <img src="screenshots/toolbar.png" alt="Shared toolbar and window chrome"
+               onerror="this.style.display='none'; this.closest('.shot').classList.add('shot--missing')">
+          <div class="placeholder">Screenshot coming soon<br><code>screenshots/toolbar.png</code></div>
+        </div>
+        <figcaption><strong>Shared toolbar &amp; window chrome</strong> — per-plugin toggles, resizing, docking, and the lock button.</figcaption>
+      </figure>
+
+      <figure>
+        <div class="shot shot--missing">
+          <img src="screenshots/window-memory.png" alt="Windows restored to their saved positions"
+               onerror="this.style.display='none'; this.closest('.shot').classList.add('shot--missing')">
+          <div class="placeholder">Screenshot coming soon<br><code>screenshots/window-memory.png</code></div>
+        </div>
+        <figcaption><strong>Window memory</strong> — the game's own windows reopen exactly where you left them.</figcaption>
+      </figure>
+
+    </div>
+  </section>
+
+  <section id="features">
+    <h2>What's <span class="accent">in the pack</span></h2>
+    <div class="features">
+      <div>
+        <h3>Air Boss (Flight Deck Manager)</h3>
+        <p>One window listing every ship and air base with a flight deck. Clicking a row opens the game's own flight deck panel, docked beside the list.</p>
+      </div>
+      <div>
+        <h3>Picture-in-picture</h3>
+        <p>Mirrors the main camera with no extra scene cost. Shows automatically when the fullscreen map covers the 3D view.</p>
+      </div>
+      <div>
+        <h3>Window memory</h3>
+        <p>Restores each window's saved position before it's first drawn, so it lands in place with no visible jump. Removable by design.</p>
+      </div>
+      <div>
+        <h3>Shared Core</h3>
+        <p>HUD-aware hiding, a shared toolbar, Set Default / Reset for the whole layout, desktop-style resizing, and docking — applied to the game's own windows, not just the pack's.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="install">
+    <h2>Get <span class="accent">started</span></h2>
+    <p>Requires BepInEx 5 (x64). Download the release, extract it, and run the installer for your system.</p>
+    <a class="cta" href="https://github.com/MoseySauce/SeaPowerUX/releases/latest">Download latest release</a>
+    <a class="cta" href="https://github.com/MoseySauce/SeaPowerUX/blob/main/INSTALL.md">Full install guide</a>
+  </section>
+</main>
+
+<footer>
+  <a href="https://github.com/MoseySauce/SeaPowerUX">MoseySauce/SeaPowerUX</a> on GitHub.
+</footer>
+
+</body>
+</html>
